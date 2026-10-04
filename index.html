@@ -1,0 +1,951 @@
+<!--
+THESIS: EngineerHub is a practical engineering workbench, not a directory of disconnected calculator cards.
+OWN-WORLD: Ink-blue instrument panels, chalk-white work surfaces, drafting-grid lines, signal-lime actions, and measured orange annotations.
+STORY: Students see what to work on, move directly into a tool or lesson, and keep their project work together.
+FIRST VIEWPORT: A fixed workbench rail frames a broad dashboard: clear greeting and demo metrics above a two-column study plan and featured engineering lesson.
+FORM: Operate; a responsive instrument-console workspace replaces the single-task-list template and keeps high-frequency actions close at hand.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f2f4f1">
+  <meta name="description" content="EngineerHub is a student-first engineering workspace for tools, learning, projects and career planning.">
+  <title>EngineerHub — Engineering, without the friction</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Segoe UI", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      --page: #f2f4f1;
+      --paper: #fff;
+      --ink: #172321;
+      --muted: #66736e;
+      --quiet: #66736e;
+      --line: #e1e7e2;
+      --rail: #142622;
+      --rail-ink: #f0f4ee;
+      --rail-muted: #a5b5ae;
+      --accent: #c9f36a;
+      --accent-ink: #26341b;
+      --blue: #245c91;
+      --blue-soft: #eaf2f9;
+      --orange: #bc653c;
+      --orange-soft: #fbefe9;
+      --green: #347357;
+      --green-soft: #eaf4ed;
+      --shadow: 0 12px 32px rgb(19 39 32 / 5%);
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    html { min-width: 320px; scroll-behavior: smooth; }
+    body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--page); color: var(--ink); font-size: 14px; line-height: 1.55; }
+    button, input, select, textarea { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid #4585ad; outline-offset: 3px; }
+    .skip-link { position: fixed; z-index: 20; top: 10px; left: 10px; padding: 10px 14px; transform: translateY(-160%); background: var(--paper); color: var(--ink); }
+    .skip-link:focus { transform: translateY(0); }
+    .shell { min-height: 100vh; }
+    .rail { position: fixed; inset: 0 auto 0 0; z-index: 5; display: flex; width: 248px; flex-direction: column; padding: 22px 16px 18px; background: var(--rail); color: var(--rail-ink); }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 3px 10px 23px; color: inherit; text-decoration: none; }
+    .brand-mark { display: grid; width: 34px; height: 34px; place-items: center; background: var(--accent); color: var(--accent-ink); font-size: 19px; font-weight: 900; }
+    .brand-name { font-size: 17px; font-weight: 760; letter-spacing: .07em; }
+    .brand-name span { display: block; margin-top: -2px; color: var(--rail-muted); font-size: 9px; font-weight: 600; letter-spacing: .15em; }
+    .rail-label { margin: 8px 10px 7px; color: #81968d; font-size: 10px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+    .nav-list { display: grid; gap: 3px; margin: 0; padding: 0; list-style: none; }
+    .nav-link { display: flex; width: 100%; min-height: 39px; align-items: center; gap: 11px; padding: 8px 11px; border: 0; background: transparent; color: var(--rail-muted); cursor: pointer; text-align: left; transition: color 140ms ease, background 140ms ease; }
+    .nav-link:hover { background: rgb(255 255 255 / 7%); color: var(--rail-ink); }
+    .nav-link[aria-current="page"] { background: #273b34; color: var(--accent); }
+    .nav-icon { display: grid; width: 20px; place-items: center; font-size: 16px; }
+    .nav-link span:last-child { flex: 1; }
+    .nav-soon { color: #84948e; font-size: 9px; text-transform: uppercase; }
+    .rail-spacer { flex: 1; }
+    .rail-note { margin: 13px 5px 15px; padding: 12px; border: 1px solid #354842; color: var(--rail-muted); font-size: 11px; }
+    .rail-note strong { display: block; margin-bottom: 3px; color: #dae5de; font-size: 12px; }
+    .profile { display: flex; align-items: center; gap: 10px; padding: 13px 8px 2px; border-top: 1px solid #33443e; }
+    .avatar { display: grid; width: 34px; height: 34px; flex: 0 0 34px; place-items: center; background: #39564a; color: #eff8e9; font-weight: 700; }
+    .profile-name { color: var(--rail-ink); font-size: 12px; font-weight: 650; }
+    .profile-detail { color: var(--rail-muted); font-size: 10px; }
+    .workspace { min-height: 100vh; margin-left: 248px; background-color: var(--page); background-image: linear-gradient(rgb(20 38 34 / 3%) 1px, transparent 1px), linear-gradient(90deg, rgb(20 38 34 / 3%) 1px, transparent 1px); background-size: 32px 32px; }
+    .topbar { position: sticky; z-index: 4; top: 0; display: flex; min-height: 66px; align-items: center; justify-content: space-between; gap: 18px; padding: 0 clamp(20px, 4vw, 56px); border-bottom: 1px solid var(--line); background: rgb(242 244 241 / 96%); }
+    .crumb { color: var(--muted); font-size: 12px; }
+    .crumb strong { color: var(--ink); font-weight: 650; }
+    .top-actions { display: flex; align-items: center; gap: 14px; }
+    .search-box { position: relative; width: min(270px, 34vw); }
+    .search-box input { width: 100%; height: 36px; padding: 0 12px 0 35px; border: 1px solid #dbe2dd; border-radius: 3px; background: var(--paper); color: var(--ink); }
+    .search-box input::placeholder { color: var(--quiet); }
+    .search-symbol { position: absolute; top: 8px; left: 12px; color: var(--muted); pointer-events: none; }
+    .today-label { color: var(--muted); font-size: 11px; white-space: nowrap; }
+    .mobile-brand, .mobile-menu { display: none; }
+    main { width: min(100%, 1330px); margin: 0 auto; padding: 34px clamp(20px, 4vw, 56px) 54px; }
+    .page-view[hidden] { display: none; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 4px; font-size: clamp(26px, 3vw, 36px); font-weight: 660; letter-spacing: -.045em; line-height: 1.15; }
+    h2 { margin-bottom: 0; font-size: 19px; font-weight: 680; letter-spacing: -.025em; }
+    h3 { margin-bottom: 7px; font-size: 14px; font-weight: 680; }
+    .intro { margin-bottom: 24px; }
+    .intro p { margin-bottom: 0; color: var(--muted); }
+    .date-line { margin-bottom: 6px !important; color: var(--blue) !important; font-size: 11px; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+    .demo-flag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; background: #edf2e6; color: #51643d; font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+    .demo-flag::before { width: 6px; height: 6px; border-radius: 50%; background: #81a84e; content: ""; }
+    .demo-flag.storage-unavailable { background: var(--orange-soft); color: #73462e; }
+    .demo-flag.storage-unavailable::before { background: var(--orange); }
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0 0 27px; border: 1px solid var(--line); background: var(--paper); }
+    .metric { min-height: 102px; padding: 17px 20px; }
+    .metric + .metric { border-left: 1px solid var(--line); }
+    .metric-label { color: var(--muted); font-size: 11px; font-weight: 600; }
+    .metric-value { display: flex; align-items: baseline; gap: 7px; margin: 8px 0 1px; font-size: 27px; font-weight: 700; letter-spacing: -.05em; line-height: 1; }
+    .metric-value small { color: var(--muted); font-size: 11px; font-weight: 550; letter-spacing: 0; }
+    .metric-foot { color: var(--quiet); font-size: 10px; }
+    .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(270px, .85fr); gap: 22px; align-items: start; }
+    .column { display: grid; gap: 22px; min-width: 0; }
+    .panel { border: 1px solid var(--line); background: var(--paper); }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 17px 19px 13px; }
+    .panel-head p { margin: 3px 0 0; color: var(--muted); font-size: 11px; }
+    .text-action { padding: 3px 0; border: 0; background: none; color: var(--blue); cursor: pointer; font-size: 11px; font-weight: 650; text-decoration: none; }
+    .text-action:hover { text-decoration: underline; }
+    .task-form { display: flex; gap: 8px; padding: 0 19px 13px; }
+    .field, .select-field, .text-area { min-width: 0; border: 1px solid #dbe2dd; border-radius: 2px; background: #fff; color: var(--ink); }
+    .field, .select-field { height: 39px; padding: 0 11px; }
+    .field { width: 100%; }
+    .field::placeholder, .text-area::placeholder { color: #66736e; }
+    .text-area { width: 100%; min-height: 106px; padding: 10px 11px; resize: vertical; }
+    .primary-button, .secondary-button { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; gap: 7px; padding: 0 13px; border: 1px solid transparent; border-radius: 2px; cursor: pointer; font-size: 12px; font-weight: 700; transition: background 140ms ease, transform 140ms ease; }
+    .primary-button { background: var(--rail); color: #fff; }
+    .primary-button:hover { background: #29433a; }
+    .primary-button:active, .secondary-button:active { transform: translateY(1px); }
+    .primary-button.lime { background: var(--accent); color: #29371e; }
+    .primary-button.lime:hover { background: #bce85b; }
+    .secondary-button { border-color: var(--line); background: var(--paper); color: var(--ink); }
+    .secondary-button:hover { background: #f2f6f3; }
+    .task-list { margin: 0; padding: 0 19px; list-style: none; }
+    .task-item { display: flex; min-height: 44px; align-items: center; gap: 10px; border-top: 1px solid #edf0ed; }
+    .task-check { display: grid; width: 19px; height: 19px; flex: 0 0 19px; place-items: center; border: 1px solid #b6c2ba; border-radius: 2px; background: white; color: white; cursor: pointer; }
+    .task-check[aria-pressed="true"] { border-color: var(--green); background: var(--green); }
+    .task-check span { opacity: 0; }
+    .task-check[aria-pressed="true"] span { opacity: 1; }
+    .task-text { flex: 1; overflow-wrap: anywhere; }
+    .task-item.is-complete .task-text { color: var(--quiet); text-decoration: line-through; }
+    .delete-task { padding: 5px 7px; border: 0; background: transparent; color: var(--quiet); cursor: pointer; font-size: 16px; }
+    .delete-task:hover { color: #ae4936; }
+    .task-empty { padding: 15px 0; border-top: 1px solid #edf0ed; color: var(--muted); font-size: 12px; }
+    .panel-foot { display: flex; justify-content: space-between; padding: 11px 19px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+    .clear-button { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 10px; }
+    .clear-button:disabled { cursor: default; opacity: .45; }
+    .continue-item { display: grid; grid-template-columns: 58px minmax(0, 1fr) auto; align-items: center; gap: 13px; margin: 0 19px 18px; padding-top: 5px; }
+    .lesson-art { display: grid; width: 58px; height: 58px; place-items: center; background: #e6eef3; color: #224c67; font-size: 20px; }
+    .continue-item h3 { margin-bottom: 4px; font-size: 13px; }
+    .continue-item p { margin-bottom: 0; color: var(--muted); font-size: 10px; }
+    .mini-progress { height: 3px; margin-top: 8px; background: #e7ece8; }
+    .mini-progress span { display: block; width: 58%; height: 100%; background: #347357; }
+    .study-list { margin: 0; padding: 0 19px 10px; list-style: none; }
+    .study-list li { display: flex; align-items: center; gap: 9px; padding: 8px 0; border-top: 1px solid #edf0ed; font-size: 11px; }
+    .study-list time { margin-left: auto; color: var(--muted); font-size: 10px; white-space: nowrap; }
+    .study-dot { width: 7px; height: 7px; border-radius: 50%; background: #b7c590; }
+    .feature-band { position: relative; overflow: hidden; min-height: 177px; padding: 21px 23px 20px; background: var(--rail); color: white; }
+    .feature-band::after { position: absolute; right: -20px; bottom: -42px; width: 190px; height: 190px; border: 1px solid rgb(201 243 106 / 25%); border-radius: 50%; box-shadow: 0 0 0 22px rgb(201 243 106 / 6%), 0 0 0 46px rgb(201 243 106 / 4%); content: ""; }
+    .feature-band .demo-flag { position: relative; z-index: 1; background: #2d4438; color: #dbf4b0; }
+    .feature-band h2 { position: relative; z-index: 1; max-width: 330px; margin: 13px 0 6px; font-size: 21px; }
+    .feature-band p { position: relative; z-index: 1; max-width: 380px; margin-bottom: 16px; color: #bdcbc4; font-size: 11px; }
+    .feature-band button { position: relative; z-index: 1; }
+    .section-title { display: flex; align-items: end; justify-content: space-between; gap: 14px; margin-bottom: 17px; }
+    .section-title p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin: 17px 0 20px; }
+    .toolbar .field { max-width: 320px; }
+    .filter-row { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 18px; }
+    .filter-chip { min-height: 30px; padding: 0 11px; border: 1px solid #dce3de; border-radius: 2px; background: transparent; color: var(--muted); cursor: pointer; font-size: 10px; font-weight: 650; }
+    .filter-chip[aria-pressed="true"], .filter-chip:hover { border-color: var(--rail); background: var(--rail); color: white; }
+    .tool-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr); gap: 22px; align-items: start; }
+    .tool-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+    .tool-item { display: flex; min-height: 91px; flex-direction: column; align-items: flex-start; gap: 6px; padding: 13px 14px; border: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--paper); cursor: pointer; text-align: left; }
+    .tool-item:hover, .tool-item[aria-pressed="true"] { background: #f3f7ef; }
+    .tool-item[aria-pressed="true"] { box-shadow: inset 3px 0 var(--green); }
+    .tool-name { font-size: 12px; font-weight: 700; }
+    .tool-category { color: var(--muted); font-size: 10px; }
+    .calculator { padding: 20px; border: 1px solid var(--line); background: var(--paper); }
+    .calculator h2 { margin-bottom: 3px; font-size: 17px; }
+    .calculator > p { margin-bottom: 17px; color: var(--muted); font-size: 11px; }
+    .calc-fields { display: grid; gap: 12px; }
+    .calc-field label, .form-field label { display: block; margin-bottom: 5px; color: #42524c; font-size: 10px; font-weight: 700; }
+    .calc-fields .field, .calc-fields .select-field { width: 100%; }
+    .calc-result { min-height: 46px; margin-top: 14px; padding: 10px 12px; border: 1px solid #dbe7d2; background: #f4f8ed; color: #31452c; font-size: 12px; font-weight: 700; }
+    .calc-result:empty { display: none; }
+    .disclaimer { margin: 13px 0 0; color: var(--muted); font-size: 10px; }
+    .content-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; border: 1px solid var(--line); background: var(--line); }
+    .content-card { min-width: 0; padding: 17px; background: var(--paper); }
+    .card-mark { display: grid; width: 34px; height: 34px; margin-bottom: 14px; place-items: center; background: var(--blue-soft); color: var(--blue); font-size: 16px; }
+    .content-card h3 { margin-bottom: 5px; }
+    .content-card p { margin-bottom: 11px; color: var(--muted); font-size: 11px; }
+    .card-meta { color: var(--quiet); font-size: 9px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; }
+    .inline-link { padding: 0; border: 0; background: transparent; color: var(--blue); cursor: pointer; font-size: 11px; font-weight: 700; text-align: left; }
+    .project-card { display: flex; min-height: 100%; flex-direction: column; }
+    .project-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
+    .level { padding: 4px 7px; background: #eef3e8; color: #50653e; font-size: 9px; font-weight: 700; text-transform: uppercase; }
+    .project-card .inline-link { margin-top: auto; }
+    .project-detail { margin-top: 12px; padding-top: 11px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+    .two-col { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, .65fr); gap: 22px; align-items: start; }
+    .form-panel { padding: 19px; border: 1px solid var(--line); background: var(--paper); }
+    .form-panel h2 { margin-bottom: 4px; font-size: 17px; }
+    .form-panel > p { color: var(--muted); font-size: 11px; }
+    .form-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; margin-top: 16px; }
+    .form-field.full { grid-column: 1 / -1; }
+    .form-field .field, .form-field .select-field { width: 100%; }
+    .output-panel { min-height: 180px; padding: 18px; border: 1px solid var(--line); background: #f8faf7; }
+    .output-panel h3 { margin-bottom: 10px; }
+    .output-text { margin: 0; color: #34443e; font-size: 12px; line-height: 1.7; white-space: pre-wrap; }
+    .output-placeholder { color: var(--muted); font-size: 11px; }
+    .callout { margin: 15px 0; padding: 12px 14px; border: 1px solid #ead8cd; background: var(--orange-soft); color: #63412e; font-size: 11px; }
+    .ai-samples { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    .ai-sample { padding: 7px 10px; border: 1px solid #c9d5cf; background: white; color: #30483c; cursor: pointer; font-size: 10px; }
+    .ai-sample:hover { border-color: var(--green); }
+    .ai-output { min-height: 140px; margin-top: 17px; padding: 17px; border-left: 2px solid var(--green); background: #f5f8f4; }
+    .ai-output h3 { margin-bottom: 9px; }
+    .ai-output p, .ai-output li { color: #4c5b54; font-size: 11px; }
+    .ai-output ul { margin-bottom: 0; padding-left: 18px; }
+    .ai-empty { color: var(--muted); font-size: 11px; }
+    .lesson-visual { display: flex; align-items: center; justify-content: space-around; gap: 8px; margin: 11px 0; padding: 12px 8px; border: 1px solid var(--line); background-color: #f6f8f4; background-image: linear-gradient(rgb(20 38 34 / 5%) 1px, transparent 1px), linear-gradient(90deg, rgb(20 38 34 / 5%) 1px, transparent 1px); background-size: 16px 16px; color: #29463a; font-size: 10px; font-weight: 700; text-align: center; }
+    .lesson-visual span { padding: 4px 6px; background: #fff; }
+    .path-list { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+    .path-row { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-top: 1px solid var(--line); }
+    .path-row strong { font-size: 12px; }
+    .path-row span { color: var(--muted); font-size: 10px; }
+    .path-index { display: grid; width: 25px; height: 25px; flex: 0 0 25px; place-items: center; background: #edf2e8; color: #55733b; font-size: 10px; font-weight: 700; }
+    .note-status { min-height: 17px; margin: 8px 0 0; color: var(--green); font-size: 10px; }
+    .resource-list { display: grid; gap: 0; margin-top: 4px; }
+    .resource-row { display: flex; align-items: center; gap: 11px; padding: 12px 0; border-top: 1px solid var(--line); }
+    .resource-row span { flex: 1; font-size: 11px; }
+    .resource-type { color: var(--muted); font-size: 9px !important; text-align: right; }
+    dialog { width: min(620px, calc(100% - 28px)); max-height: min(84vh, 750px); padding: 0; border: 1px solid #ced8d0; background: var(--paper); color: var(--ink); box-shadow: 0 24px 80px rgb(17 35 28 / 22%); }
+    dialog::backdrop { background: rgb(15 28 23 / 58%); }
+    .dialog-head { display: flex; justify-content: space-between; gap: 12px; padding: 18px 21px 12px; border-bottom: 1px solid var(--line); }
+    .dialog-head h2 { font-size: 18px; }
+    .dialog-close { width: 31px; height: 31px; border: 1px solid var(--line); background: white; cursor: pointer; }
+    .dialog-body { padding: 18px 21px 22px; }
+    .dialog-body p, .dialog-body li { color: #4f5d57; font-size: 12px; }
+    .dialog-body h3 { margin: 16px 0 6px; }
+    .dialog-body .disclaimer { font-size: 10px; }
+    .form-message { margin-top: 10px; color: var(--orange); font-size: 11px; }
+    @media (min-width: 1500px) { main { padding-top: 43px; } }
+    @media (max-width: 1080px) {
+      .rail { width: 218px; }
+      .workspace { margin-left: 218px; }
+      .dashboard-grid, .tool-layout { grid-template-columns: minmax(0, 1fr) minmax(250px, .82fr); gap: 16px; }
+      .metric { padding: 15px; }
+      .content-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 820px) {
+      .rail { width: 68px; align-items: center; padding: 15px 8px; }
+      .brand { padding: 3px 0 24px; }
+      .brand-name, .rail-label, .nav-link span:last-child, .nav-soon, .rail-note, .profile-copy { display: none; }
+      .nav-list { width: 100%; }
+      .nav-link { justify-content: center; padding: 9px 4px; }
+      .nav-icon { width: auto; font-size: 17px; }
+      .profile { justify-content: center; width: 100%; padding: 13px 0 0; }
+      .workspace { margin-left: 68px; }
+      .dashboard-grid, .tool-layout, .two-col { grid-template-columns: minmax(0, 1fr); }
+      .column { gap: 17px; }
+      .tool-calculator { order: -1; }
+      .today-label { display: none; }
+    }
+    @media (max-width: 560px) {
+      .rail { inset: auto 0 0; width: auto; height: 62px; flex-direction: row; justify-content: center; padding: 5px 7px max(5px, env(safe-area-inset-bottom)); border-top: 1px solid #3a4a44; }
+      .brand, .rail-label, .rail-spacer, .rail-note, .profile { display: none; }
+      .nav-list { display: flex; max-width: 100%; justify-content: space-around; gap: 0; overflow-x: auto; }
+      .nav-link { width: 54px; min-width: 48px; min-height: 47px; flex-direction: column; gap: 0; padding: 4px 2px; }
+      .nav-link span:last-child { display: block; overflow: hidden; width: 100%; font-size: 8px; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+      .nav-icon { height: 23px; font-size: 15px; }
+      .workspace { margin-left: 0; padding-bottom: 62px; }
+      .topbar { min-height: 57px; padding: 0 15px; }
+      .crumb { display: none; }
+      .mobile-brand { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 800; letter-spacing: .07em; }
+      .mobile-brand .brand-mark { width: 27px; height: 27px; font-size: 15px; }
+      .top-actions { flex: 1; justify-content: flex-end; gap: 8px; }
+      .search-box { width: min(44vw, 190px); }
+      .search-box input { height: 33px; font-size: 11px; }
+      main { padding: 25px 15px 34px; }
+      .intro { margin-bottom: 19px; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 20px; }
+      .metric { min-height: 85px; padding: 13px; }
+      .metric:nth-child(3) { border-left: 0; border-top: 1px solid var(--line); }
+      .metric:nth-child(4) { border-top: 1px solid var(--line); }
+      .metric-value { font-size: 24px; }
+      .dashboard-grid { gap: 15px; }
+      .panel-head { padding-right: 14px; padding-left: 14px; }
+      .task-form { padding-right: 14px; padding-left: 14px; }
+      .task-list { padding-right: 14px; padding-left: 14px; }
+      .panel-foot { padding-right: 14px; padding-left: 14px; }
+      .continue-item { margin-right: 14px; margin-left: 14px; }
+      .study-list { padding-right: 14px; padding-left: 14px; }
+      .content-grid { grid-template-columns: minmax(0, 1fr); }
+      .tool-list { grid-template-columns: minmax(0, 1fr); }
+      .tool-item { min-height: 70px; }
+      .form-fields { grid-template-columns: minmax(0, 1fr); }
+      .form-field.full { grid-column: auto; }
+      .section-title { align-items: flex-start; }
+      .toolbar { align-items: stretch; }
+      .toolbar .field { max-width: none; }
+      .task-form .primary-button { padding: 0 10px; }
+      .study-list li { align-items: flex-start; }
+      .study-list time { font-size: 9px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <div class="shell">
+    <aside class="rail" aria-label="Main navigation">
+      <a class="brand" href="#dashboard" data-nav="dashboard" aria-label="EngineerHub dashboard">
+        <span class="brand-mark" aria-hidden="true">E</span>
+        <span class="brand-name">ENGINEERHUB<span>THE DIGITAL WORKSPACE</span></span>
+      </a>
+      <p class="rail-label">Workspace</p>
+      <ul class="nav-list">
+        <li><button class="nav-link" type="button" data-nav="dashboard" aria-current="page"><span class="nav-icon" aria-hidden="true">⌂</span><span>Dashboard</span></button></li>
+        <li><button class="nav-link" type="button" data-nav="tools"><span class="nav-icon" aria-hidden="true">⌘</span><span>Engineering tools</span></button></li>
+        <li><button class="nav-link" type="button" data-nav="engineerai"><span class="nav-icon" aria-hidden="true">✳</span><span>EngineerAI</span></button></li>
+        <li><button class="nav-link" type="button" data-nav="learning"><span class="nav-icon" aria-hidden="true">▤</span><span>Learning library</span></button></li>
+        <li><button class="nav-link" type="button" data-nav="projects"><span class="nav-icon" aria-hidden="true">⬡</span><span>Project hub</span></button></li>
+        <li><button class="nav-link" type="button" data-nav="career"><span class="nav-icon" aria-hidden="true">↗</span><span>Career center</span></button></li>
+        <li><button class="nav-link" type="button" data-nav="notes"><span class="nav-icon" aria-hidden="true">▧</span><span>Notes &amp; resources</span></button></li>
+        <li><button class="nav-link" type="button" data-nav="community"><span class="nav-icon" aria-hidden="true">◎</span><span>Community</span></button></li>
+      </ul>
+      <div class="rail-spacer"></div>
+      <div class="rail-note"><strong>Built for the work ahead.</strong>Tools, study and project planning in one place.</div>
+      <div class="profile">
+        <div class="avatar" aria-hidden="true">S</div>
+        <div class="profile-copy"><div class="profile-name">Sindhu · Demo profile</div><div class="profile-detail">Local prototype · no account</div></div>
+      </div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar">
+        <a class="mobile-brand" href="#dashboard" data-nav="dashboard"><span class="brand-mark" aria-hidden="true">E</span>ENGINEERHUB</a>
+        <div class="crumb" aria-live="polite">Workspace <span aria-hidden="true">/</span> <strong id="breadcrumb">Dashboard</strong></div>
+        <div class="top-actions">
+          <label class="search-box">
+            <span class="search-symbol" aria-hidden="true">⌕</span>
+            <input id="global-search" type="search" placeholder="Search tools, topics…" aria-label="Search tools and learning topics">
+          </label>
+          <span class="today-label" id="top-date"></span>
+        </div>
+      </header>
+      <main id="main-content" tabindex="-1">
+        <section class="page-view" id="page-dashboard" aria-labelledby="dashboard-title">
+          <div class="intro">
+            <p class="date-line" id="greeting-date"></p>
+            <h1 id="dashboard-title"><span id="greeting"></span>, Sindhu <span aria-hidden="true">👋</span></h1>
+            <p>Your engineering command center. Pick up where you left off.</p>
+          </div>
+          <div class="metrics" aria-label="Illustrative dashboard metrics">
+            <div class="metric"><div class="metric-label">CGPA</div><div class="metric-value">8.7 <small>/ 10</small></div><div class="metric-foot">Illustrative profile data</div></div>
+            <div class="metric"><div class="metric-label">Active projects</div><div class="metric-value">4</div><div class="metric-foot">Sample workspace</div></div>
+            <div class="metric"><div class="metric-label">Skills explored</div><div class="metric-value">72<small>%</small></div><div class="metric-foot">Illustrative progress</div></div>
+            <div class="metric"><div class="metric-label">Career roadmap</div><div class="metric-value">64<small>%</small></div><div class="metric-foot">Sample profile data</div></div>
+          </div>
+          <div class="dashboard-grid">
+            <div class="column">
+              <section class="panel" aria-labelledby="plan-title">
+                <div class="panel-head"><div><h2 id="plan-title">Today's study plan</h2><p>A small next step is still progress.</p></div><div><span class="demo-flag" id="task-storage-status">Saved on this device</span><button class="text-action" type="button" data-nav="exam">Exam mode →</button></div></div>
+                <form class="task-form" id="task-form">
+                  <label for="task-input" hidden>Add a study task</label>
+                  <input class="field" id="task-input" name="task" type="text" maxlength="180" placeholder="Add a study task…" autocomplete="off" required>
+                  <button class="primary-button" type="submit">＋ Add</button>
+                </form>
+                <ul class="task-list" id="task-list" aria-label="Study tasks"></ul>
+                <div class="panel-foot"><span id="task-summary" aria-live="polite"></span><button class="clear-button" id="clear-completed" type="button">Clear completed</button></div>
+              </section>
+              <section class="panel" aria-labelledby="learning-next-title">
+                <div class="panel-head"><div><h2 id="learning-next-title">Continue learning</h2><p>Pick up a core concept and keep moving.</p></div><button class="text-action" type="button" data-nav="learning">Browse library →</button></div>
+                <div class="continue-item">
+                  <div class="lesson-art" aria-hidden="true">∿</div>
+                  <div><h3>Bernoulli's equation</h3><p>Fluid mechanics · 8 min · Sample lesson</p><div class="mini-progress" aria-label="Illustrative lesson progress"><span></span></div></div>
+                  <button class="secondary-button" type="button" data-lesson="bernoulli">Open</button>
+                </div>
+                <ul class="study-list">
+                  <li><span class="study-dot" aria-hidden="true"></span>Review Kirchhoff's current law<time>20 min · Sample plan</time></li>
+                  <li><span class="study-dot" aria-hidden="true"></span>Sketch the sensor block diagram<time>15 min · Sample plan</time></li>
+                </ul>
+              </section>
+            </div>
+            <div class="column">
+              <section class="feature-band" aria-labelledby="ai-feature-title">
+                <span class="demo-flag">Prototype</span>
+                <h2 id="ai-feature-title">Questions are where engineering starts.</h2>
+                <p>Explore a guided, prewritten example. No live AI is connected in this prototype.</p>
+                <button class="primary-button lime" type="button" data-nav="engineerai">Explore EngineerAI →</button>
+              </section>
+              <section class="panel" aria-labelledby="recommended-tools-title">
+                <div class="panel-head"><div><h2 id="recommended-tools-title">Recommended tools</h2><p>Quick calculations for your next step.</p></div><button class="text-action" type="button" data-nav="tools">All tools →</button></div>
+                <ul class="study-list">
+                  <li><span class="study-dot" aria-hidden="true"></span>Ohm's law <button class="text-action" type="button" data-tool-open="Ohm's law">Open</button></li>
+                  <li><span class="study-dot" aria-hidden="true"></span>CGPA calculator <button class="text-action" type="button" data-tool-open="CGPA calculator">Open</button></li>
+                  <li><span class="study-dot" aria-hidden="true"></span>Unit converter <button class="text-action" type="button" data-tool-open="Unit converter">Open</button></li>
+                </ul>
+              </section>
+              <section class="panel" aria-labelledby="project-snapshot-title">
+                <div class="panel-head"><div><h2 id="project-snapshot-title">Recent projects</h2><p>Illustrative project ideas to explore.</p></div><button class="text-action" type="button" data-nav="projects">Explore →</button></div>
+                <ul class="study-list">
+                  <li><span class="study-dot" aria-hidden="true"></span>Smart plant monitor<time>Beginner</time></li>
+                  <li><span class="study-dot" aria-hidden="true"></span>Line-following robot<time>Intermediate</time></li>
+                </ul>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section class="page-view" id="page-tools" aria-labelledby="tools-title" hidden>
+          <div class="section-title"><div><h1 id="tools-title">Engineering tools</h1><p>Find a practical tool, then check your inputs before using the result.</p></div><span class="demo-flag">Student prototype</span></div>
+          <div class="toolbar"><input class="field" id="tool-search" type="search" placeholder="Find a tool…" aria-label="Filter engineering tools"></div>
+          <div class="filter-row" id="tool-filters" aria-label="Filter by discipline"></div>
+          <div class="tool-layout">
+            <div class="tool-list" id="tool-list" aria-label="Available tools"></div>
+            <section class="calculator tool-calculator" aria-labelledby="calculator-title">
+              <h2 id="calculator-title">Quick calculator</h2>
+              <p id="calculator-description">Select a tool to begin.</p>
+              <form id="calculator-form" class="calc-fields"></form>
+              <div id="calc-result" class="calc-result" aria-live="polite"></div>
+              <p class="disclaimer">Educational estimate only. Verify inputs, units, assumptions and applicable standards. Do not use for safety-critical or construction decisions.</p>
+            </section>
+          </div>
+        </section>
+
+        <section class="page-view" id="page-engineerai" aria-labelledby="engineerai-title" hidden>
+          <div class="section-title"><div><h1 id="engineerai-title">EngineerAI</h1><p>A guided engineering explainer concept. This prototype uses sample content—not an AI model.</p></div><span class="demo-flag">Prototype · no live AI</span></div>
+          <div class="two-col">
+            <section class="form-panel">
+              <h2>Start with a worked example</h2><p>Choose a prepared prompt to see the intended learning format.</p>
+              <div class="ai-samples"><button class="ai-sample" type="button" data-ai="bernoulli">Explain Bernoulli's equation</button><button class="ai-sample" type="button" data-ai="circuit">Reason through a simple circuit</button><button class="ai-sample" type="button" data-ai="sorting">Plan an automated sorting project</button></div>
+              <form id="ai-form"><div class="form-field"><label for="ai-prompt">Your question</label><textarea class="text-area" id="ai-prompt" maxlength="600" placeholder="Type a question to see the prototype boundary…"></textarea></div><button class="primary-button" type="submit">Check prototype</button><p class="form-message" id="ai-message" aria-live="polite"></p></form>
+              <div class="callout"><strong>Important:</strong> The examples are educational only. Any safety-critical design, calculation or installation requires verification by a qualified professional using applicable codes and standards.</div>
+            </section>
+            <section class="form-panel"><span class="demo-flag">Sample response</span><div class="ai-output" id="ai-output" aria-live="polite"><p class="ai-empty">Choose one of the prepared examples to preview a structured response: Concept → Formula → Explanation → Example → Practice.</p></div></section>
+          </div>
+        </section>
+
+        <section class="page-view" id="page-learning" aria-labelledby="learning-title" hidden>
+          <div class="section-title"><div><h1 id="learning-title">Learning library</h1><p>Short, structured starting points across foundational engineering subjects.</p></div><span class="demo-flag">Sample lessons</span></div>
+          <div class="toolbar"><input class="field" id="learning-search" type="search" placeholder="Search subjects and topics…" aria-label="Search the learning library"></div>
+          <div class="filter-row" id="learning-filters" aria-label="Filter learning subjects"></div>
+          <div class="content-grid" id="learning-grid"></div>
+        </section>
+
+        <section class="page-view" id="page-projects" aria-labelledby="projects-title" hidden>
+          <div class="section-title"><div><h1 id="projects-title">Project hub</h1><p>Explore project briefs that make a good starting point for team discussions.</p></div><span class="demo-flag">Illustrative ideas</span></div>
+          <div class="filter-row" id="project-filters" aria-label="Filter projects by difficulty"></div>
+          <div class="content-grid" id="project-grid"></div>
+          <p class="disclaimer">Components, budgets and performance depend on location, specifications and sourcing. Examples are for educational planning—not a validated bill of materials or certified design.</p>
+        </section>
+
+        <section class="page-view" id="page-career" aria-labelledby="career-title" hidden>
+          <div class="section-title"><div><h1 id="career-title">Career center</h1><p>Map possible next steps. This guide describes pathways, not job guarantees.</p></div><span class="demo-flag">Exploration guide</span></div>
+          <div class="two-col">
+            <section class="form-panel"><h2>Explore a pathway</h2><p>Choose a discipline to see a sample roadmap.</p><div class="form-field"><label for="career-branch">Engineering discipline</label><select class="select-field" id="career-branch"><option>CSE</option><option>Mechanical</option><option>Electrical</option><option>ECE / ETE</option><option>Civil</option><option>Biotechnology</option><option>Robotics</option><option>Aerospace</option></select></div><div class="resource-list" id="career-roadmap"></div></section>
+            <section class="form-panel"><h2>Build evidence as you learn</h2><p>Practical ways to make skills visible without overclaiming.</p><ul class="path-list"><li class="path-row"><span class="path-index">01</span><div><strong>Learn the fundamentals</strong><br><span>Choose a topic and work through a small exercise.</span></div></li><li class="path-row"><span class="path-index">02</span><div><strong>Make a focused project</strong><br><span>Document your decisions, tests and limitations.</span></div></li><li class="path-row"><span class="path-index">03</span><div><strong>Prepare your story</strong><br><span>Connect your contribution to observable outcomes.</span></div></li><li class="path-row"><span class="path-index">04</span><div><strong>Ask for feedback</strong><br><span>Use mentors and peers to find gaps in your evidence.</span></div></li></ul><button class="secondary-button" type="button" data-nav="resume">Open resume builder →</button><p class="disclaimer">No salary or hiring outcomes are promised. Research current roles and requirements with employers and trusted sources.</p></section>
+          </div>
+        </section>
+
+        <section class="page-view" id="page-notes" aria-labelledby="notes-title" hidden>
+          <div class="section-title"><div><h1 id="notes-title">Notes &amp; resources</h1><p>Keep a lightweight study note here; this stays in this browser only.</p></div><span class="demo-flag">Local storage</span></div>
+          <div class="two-col">
+            <section class="form-panel"><h2>Engineering notebook</h2><p>Notes are saved locally on this device. Avoid adding sensitive information.</p><label for="engineering-note" hidden>Engineering notes</label><textarea class="text-area" id="engineering-note" maxlength="10000" placeholder="Capture a formula, a question to revisit, or a project idea…"></textarea><p class="note-status" id="note-status" aria-live="polite"></p></section>
+            <section class="form-panel"><h2>Quick reference</h2><p>Starter resources included in this prototype.</p><div class="resource-list"><div class="resource-row"><span>First-year subject map</span><span class="resource-type">Study guide</span></div><div class="resource-row"><span>Project report outline</span><span class="resource-type">Template</span></div><div class="resource-row"><span>Formula revision checklist</span><span class="resource-type">Checklist</span></div><div class="resource-row"><span>Lab record structure</span><span class="resource-type">Template</span></div></div><button class="text-action" type="button" data-nav="documents">Open document drafter →</button></section>
+          </div>
+        </section>
+
+        <section class="page-view" id="page-community" aria-labelledby="community-title" hidden>
+          <div class="section-title"><div><h1 id="community-title">Engineering community</h1><p>A preview of the kind of peer exchange EngineerHub could support.</p></div><span class="demo-flag">Preview content only</span></div>
+          <div class="callout">This static prototype has no accounts, publishing, messaging or live community. The sample discussion prompts below are illustrative—not posts from real members.</div>
+          <div class="content-grid">
+            <article class="content-card"><div class="card-meta">Sample discussion prompt · Robotics</div><h3>What test helped your line follower handle sharp turns?</h3><p>Compare track conditions, sensor placement and how you measured repeatability.</p><span class="card-meta">Prompt only · No replies</span></article>
+            <article class="content-card"><div class="card-meta">Sample team prompt · Project planning</div><h3>How do you split a prototype into testable milestones?</h3><p>Share a planning approach with clear ownership and a definition of done.</p><span class="card-meta">Prompt only · No replies</span></article>
+            <article class="content-card"><div class="card-meta">Sample peer prompt · Learning</div><h3>Which circuit concept clicked after you built it?</h3><p>Describe the concept, the hands-on exercise and what you would change next time.</p><span class="card-meta">Prompt only · No replies</span></article>
+          </div>
+        </section>
+
+        <section class="page-view" id="page-documents" aria-labelledby="documents-title" hidden>
+          <div class="section-title"><div><h1 id="documents-title">Project document drafter</h1><p>Create an editable outline from a few details. Nothing is sent to a service.</p></div><span class="demo-flag">Local template · not AI</span></div>
+          <div class="two-col">
+            <section class="form-panel"><h2>Outline details</h2><p>Use the draft as a starting point; add your research and results.</p><form id="document-form"><div class="form-fields"><div class="form-field full"><label for="doc-title">Project title</label><input class="field" id="doc-title" maxlength="120" required placeholder="e.g. Smart plant monitoring system"></div><div class="form-field"><label for="doc-type">Document type</label><select class="select-field" id="doc-type"><option>Project synopsis</option><option>Project report</option><option>Lab record</option><option>Presentation outline</option><option>Viva questions</option></select></div><div class="form-field"><label for="doc-branch">Discipline</label><input class="field" id="doc-branch" maxlength="80" placeholder="e.g. Electronics"></div><div class="form-field full"><label for="doc-goal">Problem or objective</label><textarea class="text-area" id="doc-goal" maxlength="500" placeholder="What are you trying to understand or demonstrate?"></textarea></div><div class="form-field full"><button class="primary-button" type="submit">Create editable outline</button></div></div></form></section>
+            <section class="output-panel"><h3>Draft outline</h3><p class="output-placeholder" id="document-output">Your editable outline will appear here. Verify facts and cite your sources.</p></section>
+          </div>
+          <p class="disclaimer">This template does not perform research or generate verified technical content. Follow your institution's academic-integrity and citation requirements.</p>
+        </section>
+
+        <section class="page-view" id="page-exam" aria-labelledby="exam-title" hidden>
+          <div class="section-title"><div><h1 id="exam-title">Exam mode</h1><p>Turn the time you have into a practical revision rhythm.</p></div><span class="demo-flag">Planning helper</span></div>
+          <div class="two-col">
+            <section class="form-panel"><h2>Build a revision plan</h2><p>Enter the days remaining and a few topics. The plan is a simple local template, not generated advice.</p><form id="exam-form"><div class="form-fields"><div class="form-field"><label for="exam-days">Days until exam</label><input class="field" id="exam-days" type="number" min="1" max="60" value="7" required></div><div class="form-field"><label for="exam-hours">Hours available per day</label><input class="field" id="exam-hours" type="number" min="1" max="16" value="2" required></div><div class="form-field full"><label for="exam-topics">Topics (one per line)</label><textarea class="text-area" id="exam-topics" placeholder="Thermodynamics&#10;Fluid mechanics&#10;Heat transfer"></textarea></div><div class="form-field full"><button class="primary-button" type="submit">Draft revision schedule</button></div></div></form><p class="disclaimer">Adjust for your syllabus, rest, accessibility needs and actual study pace.</p></section>
+            <section class="output-panel"><h3>Sample schedule</h3><div class="output-placeholder" id="exam-output">Your study blocks will appear here.</div></section>
+          </div>
+        </section>
+
+        <section class="page-view" id="page-resume" aria-labelledby="resume-title" hidden>
+          <div class="section-title"><div><h1 id="resume-title">Resume workspace</h1><p>Draft a concise project-first summary, right in your browser.</p></div><span class="demo-flag">Local prototype</span></div>
+          <div class="two-col">
+            <section class="form-panel"><h2>Your starting details</h2><p>Optional details remain in the fields only and are not transmitted.</p><form id="resume-form"><div class="form-fields"><div class="form-field"><label for="resume-name">Name</label><input class="field" id="resume-name" maxlength="80" placeholder="Your name"></div><div class="form-field"><label for="resume-discipline">Discipline</label><input class="field" id="resume-discipline" maxlength="80" placeholder="e.g. Mechanical engineering"></div><div class="form-field full"><label for="resume-education">Education</label><input class="field" id="resume-education" maxlength="180" placeholder="Degree / diploma · institution · expected graduation"></div><div class="form-field full"><label for="resume-skills">Skills</label><input class="field" id="resume-skills" maxlength="240" placeholder="Tools, methods, languages"></div><div class="form-field full"><label for="resume-project">Project and your contribution</label><textarea class="text-area" id="resume-project" maxlength="500" placeholder="What did you build, test or improve?"></textarea></div><div class="form-field full"><label for="resume-internship">Internship experience</label><textarea class="text-area" id="resume-internship" maxlength="400" placeholder="Role, organization, dates and verifiable contribution"></textarea></div><div class="form-field"><label for="resume-certifications">Certifications</label><input class="field" id="resume-certifications" maxlength="240" placeholder="Relevant completed credentials"></div><div class="form-field"><label for="resume-achievements">Achievements</label><input class="field" id="resume-achievements" maxlength="240" placeholder="Accurate, relevant accomplishments"></div><div class="form-field full"><button class="primary-button" type="submit">Draft resume summary</button></div></div></form></section>
+            <section class="output-panel"><h3>Editable resume draft</h3><div class="output-placeholder" id="resume-output">Add details to create a simple draft. Review all claims before sharing.</div><button class="secondary-button" id="print-resume" type="button" hidden>Print this draft</button></section>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <dialog id="content-dialog" aria-labelledby="dialog-title"><div class="dialog-head"><h2 id="dialog-title"></h2><button class="dialog-close" type="button" aria-label="Close dialog">×</button></div><div class="dialog-body" id="dialog-body"></div></dialog>
+  <script>
+    (() => {
+      "use strict";
+      const $ = (selector, root = document) => root.querySelector(selector);
+      const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+      const labels = {
+        dashboard: "Dashboard", tools: "Engineering tools", engineerai: "EngineerAI",
+        learning: "Learning library", projects: "Project hub", career: "Career center",
+        notes: "Notes & resources", community: "Community", documents: "Document drafter",
+        exam: "Exam mode", resume: "Resume workspace"
+      };
+      function navigate(page) {
+        if (!labels[page]) return;
+        $$(".page-view").forEach(view => { view.hidden = view.id !== `page-${page}`; });
+        $$(".nav-link").forEach(link => {
+          if (link.dataset.nav === page) link.setAttribute("aria-current", "page");
+          else link.removeAttribute("aria-current");
+        });
+        $("#breadcrumb").textContent = labels[page];
+        history.replaceState(null, "", `#${page}`);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        if (page === "tools") renderTools();
+      }
+      document.addEventListener("click", event => {
+        const nav = event.target.closest("[data-nav]");
+        if (nav) { event.preventDefault(); navigate(nav.dataset.nav); }
+        const openTool = event.target.closest("[data-tool-open]");
+        if (openTool) { chooseTool(openTool.dataset.toolOpen); navigate("tools"); }
+        const lesson = event.target.closest("[data-lesson]");
+        if (lesson) openLesson(lesson.dataset.lesson);
+      });
+
+      const now = new Date();
+      $("#top-date").textContent = new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric" }).format(now);
+      $("#greeting-date").textContent = new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric" }).format(now);
+      const hour = now.getHours();
+      $("#greeting").textContent = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+
+      const TASK_KEY = "engineerhub-study-tasks-v1";
+      const examples = [
+        { id: "sample-review", text: "Review one concept from this week's notes", completed: false },
+        { id: "sample-sketch", text: "Sketch the sensor block diagram", completed: true }
+      ];
+      let tasksPersistenceAvailable = true;
+      function loadTasks() {
+        try {
+          const raw = localStorage.getItem(TASK_KEY);
+          if (raw === null) {
+            const legacy = localStorage.getItem("tidy-tasks-v1");
+            if (legacy === null) return examples.map(task => ({ ...task }));
+            const legacyData = JSON.parse(legacy);
+            if (!Array.isArray(legacyData)) throw new TypeError("Saved tasks must be a list.");
+            const migrated = legacyData.filter(task => task && typeof task.id === "string" && typeof task.text === "string" && typeof task.completed === "boolean");
+            try { localStorage.setItem(TASK_KEY, JSON.stringify(migrated)); }
+            catch (error) { tasksPersistenceAvailable = false; console.error("Could not migrate saved tasks:", error); }
+            return migrated;
+          }
+          const data = JSON.parse(raw);
+          if (!Array.isArray(data)) throw new TypeError("Saved study tasks must be a list.");
+          return data.filter(task => task && typeof task.id === "string" && typeof task.text === "string" && typeof task.completed === "boolean");
+        } catch (error) {
+          tasksPersistenceAvailable = false;
+          console.error("Could not load study tasks:", error);
+          return [];
+        }
+      }
+      let tasks = loadTasks();
+      function saveTasks() {
+        try {
+          localStorage.setItem(TASK_KEY, JSON.stringify(tasks));
+          tasksPersistenceAvailable = true;
+        } catch (error) {
+          tasksPersistenceAvailable = false;
+          console.error("Could not save study tasks:", error);
+        }
+      }
+      function renderTasks() {
+        const list = $("#task-list");
+        list.replaceChildren();
+        for (const task of tasks) {
+          const row = document.createElement("li");
+          row.className = `task-item${task.completed ? " is-complete" : ""}`;
+          const check = document.createElement("button");
+          check.className = "task-check";
+          check.type = "button";
+          check.setAttribute("aria-label", `${task.completed ? "Mark incomplete" : "Complete"}: ${task.text}`);
+          check.setAttribute("aria-pressed", String(task.completed));
+          check.innerHTML = "<span aria-hidden=\"true\">✓</span>";
+          check.addEventListener("click", () => { task.completed = !task.completed; saveTasks(); renderTasks(); });
+          const text = document.createElement("span");
+          text.className = "task-text";
+          text.textContent = task.text;
+          const remove = document.createElement("button");
+          remove.className = "delete-task";
+          remove.type = "button";
+          remove.setAttribute("aria-label", `Delete: ${task.text}`);
+          remove.textContent = "×";
+          remove.addEventListener("click", () => { tasks = tasks.filter(item => item.id !== task.id); saveTasks(); renderTasks(); });
+          row.append(check, text, remove);
+          list.append(row);
+        }
+        if (tasks.length === 0) {
+          const empty = document.createElement("li");
+          empty.className = "task-empty";
+          empty.textContent = "Your plan is clear. Add one small next step.";
+          list.append(empty);
+        }
+        const completed = tasks.filter(task => task.completed).length;
+        $("#task-summary").textContent = `${tasks.length - completed} to do · ${completed} complete`;
+        $("#task-storage-status").textContent = tasksPersistenceAvailable ? "Saved on this device" : "Storage unavailable · may not persist";
+        $("#task-storage-status").classList.toggle("storage-unavailable", !tasksPersistenceAvailable);
+        $("#clear-completed").disabled = completed === 0;
+      }
+      $("#task-form").addEventListener("submit", event => {
+        event.preventDefault();
+        const input = $("#task-input");
+        const text = input.value.trim();
+        if (!text) return;
+        tasks.push({ id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`, text, completed: false });
+        saveTasks();
+        renderTasks();
+        input.value = "";
+        input.focus();
+      });
+      $("#clear-completed").addEventListener("click", () => { tasks = tasks.filter(task => !task.completed); saveTasks(); renderTasks(); });
+      renderTasks();
+
+      const tools = [
+        { name: "CGPA calculator", category: "General", desc: "Calculate a credit-weighted grade point average.", fields: [["grades", "Grade points (comma-separated, 0–10)", "text"], ["credits", "Credits (comma-separated)", "text"]] },
+        { name: "Ohm's law", category: "Electrical", desc: "Find voltage, current or resistance from the other two.", fields: [["voltage", "Voltage (V)", "number"], ["current", "Current (A)", "number"]] },
+        { name: "Percentage calculator", category: "General", desc: "Find what percentage one value is of another.", fields: [["part", "Part", "number"], ["whole", "Whole", "number"]] },
+        { name: "Unit converter", category: "General", desc: "Convert a length between metres, centimetres and millimetres.", fields: [["value", "Value", "number"], ["from", "From", "select", ["m", "cm", "mm"]], ["to", "To", "select", ["m", "cm", "mm"]]] },
+        { name: "Binary converter", category: "Computer science", desc: "Convert a non-negative integer between decimal and binary.", fields: [["value", "Decimal or binary value", "text"], ["direction", "Convert", "select", ["Decimal to binary", "Binary to decimal"]]] },
+        { name: "Stress estimate", category: "Mechanical", desc: "Estimate normal stress from an axial load and cross-sectional area.", fields: [["force", "Force (N)", "number"], ["area", "Area (mm²)", "number"]] },
+        { name: "JSON formatter", category: "Computer science", desc: "Format valid JSON locally in your browser.", fields: [["json", "JSON input", "textarea"]] },
+        { name: "Power calculator", category: "Electrical", desc: "Calculate electrical power from voltage and current.", fields: [["voltage", "Voltage (V)", "number"], ["current", "Current (A)", "number"]] },
+        { name: "Area & volume", category: "Civil", desc: "Calculate the area of a rectangle.", fields: [["length", "Length (m)", "number"], ["width", "Width (m)", "number"]] },
+        { name: "Resistor series", category: "Electronics", desc: "Add ideal resistor values connected in series.", fields: [["r1", "Resistor 1 (Ω)", "number"], ["r2", "Resistor 2 (Ω)", "number"]] },
+        { name: "Gear ratio", category: "Mechanical", desc: "Estimate ratio from driven and driver tooth counts.", fields: [["driven", "Driven gear teeth", "number"], ["driver", "Driver gear teeth", "number"]] },
+        { name: "Study percentage", category: "General", desc: "Measure completed items as a percentage of a total.", fields: [["part", "Completed", "number"], ["whole", "Total", "number"]] }
+      ];
+      const toolCategories = ["All", ...new Set(tools.map(tool => tool.category))];
+      let activeToolCategory = "All";
+      let activeTool = tools[0];
+      function renderToolFilters() {
+        $("#tool-filters").innerHTML = toolCategories.map(category => `<button type="button" class="filter-chip" data-tool-category="${category}" aria-pressed="${activeToolCategory === category}">${category}</button>`).join("");
+      }
+      function renderTools() {
+        renderToolFilters();
+        const query = ($("#tool-search").value || new URLSearchParams(location.search).get("q") || "").trim().toLowerCase();
+        const visible = tools.filter(tool => (activeToolCategory === "All" || tool.category === activeToolCategory) && `${tool.name} ${tool.category} ${tool.desc}`.toLowerCase().includes(query));
+        $("#tool-list").innerHTML = visible.map(tool => `<button class="tool-item" type="button" data-tool-name="${tool.name}" aria-pressed="${tool.name === activeTool.name}"><span class="tool-name">${tool.name}</span><span class="tool-category">${tool.category} · ${tool.desc}</span></button>`).join("");
+        if (!visible.some(tool => tool.name === activeTool.name) && visible.length) chooseTool(visible[0].name);
+        if (visible.length === 0) $("#tool-list").innerHTML = `<p class="task-empty">No matching tools. Try another search or discipline.</p>`;
+      }
+      function chooseTool(name) {
+        const found = tools.find(tool => tool.name === name);
+        if (!found) return;
+        activeTool = found;
+        $("#calculator-title").textContent = found.name;
+        $("#calculator-description").textContent = found.desc;
+        $("#calc-result").textContent = "";
+        $("#calculator-form").innerHTML = found.fields.map(([key, label, type, options]) => {
+          const field = type === "select"
+            ? `<select class="select-field" name="${key}">${options.map(option => `<option>${option}</option>`).join("")}</select>`
+            : type === "textarea"
+              ? `<textarea class="text-area" name="${key}" rows="4" required></textarea>`
+              : `<input class="field" name="${key}" type="${type}" ${type === "number" ? 'step="any"' : ""} ${type === "number" ? 'min="0"' : ""} required>`;
+          return `<div class="calc-field"><label>${label}</label>${field}</div>`;
+        }).join("") + `<button class="primary-button" type="submit">Calculate</button>`;
+        renderTools();
+      }
+      $("#tool-filters").addEventListener("click", event => {
+        const button = event.target.closest("[data-tool-category]");
+        if (!button) return;
+        activeToolCategory = button.dataset.toolCategory;
+        renderTools();
+      });
+      $("#tool-list").addEventListener("click", event => {
+        const button = event.target.closest("[data-tool-name]");
+        if (button) chooseTool(button.dataset.toolName);
+      });
+      $("#tool-search").addEventListener("input", renderTools);
+      $("#global-search").addEventListener("keydown", event => {
+        if (event.key !== "Enter") return;
+        const query = event.currentTarget.value.trim();
+        if (!query) return;
+        const normalizedQuery = query.toLowerCase();
+        const matchingTool = tools.find(tool => `${tool.name} ${tool.category} ${tool.desc}`.toLowerCase().includes(normalizedQuery));
+        if (matchingTool) {
+          $("#tool-search").value = query;
+          navigate("tools");
+          renderTools();
+        } else {
+          $("#learning-search").value = query;
+          navigate("learning");
+          renderLearning();
+        }
+      });
+      $("#calculator-form").addEventListener("submit", event => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        const num = key => Number(data.get(key));
+        let result;
+        const positive = (...values) => values.every(value => Number.isFinite(value) && value > 0);
+        switch (activeTool.name) {
+          case "CGPA calculator": {
+            const grades = String(data.get("grades")).split(",").map(value => Number(value.trim()));
+            const credits = String(data.get("credits")).split(",").map(value => Number(value.trim()));
+            const valid = grades.length > 0 && grades.length === credits.length && grades.every(grade => Number.isFinite(grade) && grade >= 0 && grade <= 10) && positive(...credits);
+            result = valid ? `Weighted CGPA = Σ(grade point × credits) ÷ Σcredits = ${(grades.reduce((sum, grade, index) => sum + grade * credits[index], 0) / credits.reduce((sum, credit) => sum + credit, 0)).toFixed(2)} / 10` : "Enter matching comma-separated grade points (0–10) and positive credit values, for example 8.5, 9 and 3, 4.";
+            break;
+          }
+          case "Ohm's law": {
+            const v = num("voltage"), i = num("current");
+            result = Number.isFinite(v) && v >= 0 && positive(i) ? `Resistance = V ÷ I = ${(v / i).toPrecision(5)} Ω` : "Enter a non-negative voltage and a positive current.";
+            break;
+          }
+          case "Percentage calculator":
+          case "Study percentage": {
+            const part = num("part"), whole = num("whole");
+            result = Number.isFinite(part) && positive(whole) && part >= 0 ? `${(part / whole * 100).toFixed(2)}%` : "Enter a non-negative part and a positive total.";
+            break;
+          }
+          case "Unit converter": {
+            const factors = { m: 1, cm: 100, mm: 1000 };
+            const value = num("value"), from = data.get("from"), to = data.get("to");
+            result = Number.isFinite(value) ? `${value} ${from} = ${(value / factors[from] * factors[to]).toPrecision(7)} ${to}` : "Enter a valid length.";
+            break;
+          }
+          case "Binary converter": {
+            const value = String(data.get("value")).trim(), direction = data.get("direction");
+            if (direction === "Decimal to binary") {
+              const decimal = Number(value);
+              result = Number.isSafeInteger(decimal) && decimal >= 0 ? `${decimal}₁₀ = ${decimal.toString(2)}₂` : "Enter a non-negative safe integer.";
+            } else {
+              result = /^[01]+$/.test(value) ? `${value}₂ = ${parseInt(value, 2)}₁₀` : "Use binary digits 0 and 1 only.";
+            }
+            break;
+          }
+          case "Stress estimate": {
+            const force = num("force"), area = num("area");
+            result = Number.isFinite(force) && force >= 0 && positive(area) ? `Average normal stress = F ÷ A = ${(force / area).toPrecision(5)} N/mm² (MPa)` : "Enter a non-negative force and positive cross-sectional area.";
+            break;
+          }
+          case "JSON formatter": {
+            try { result = JSON.stringify(JSON.parse(String(data.get("json"))), null, 2); }
+            catch { result = "Invalid JSON. Check brackets, commas and quoted strings."; }
+            break;
+          }
+          case "Power calculator": {
+            const v = num("voltage"), i = num("current");
+            result = Number.isFinite(v) && Number.isFinite(i) && v >= 0 && i >= 0 ? `Ideal DC power = V × I = ${(v * i).toPrecision(5)} W` : "Enter valid non-negative voltage and current values.";
+            break;
+          }
+          case "Area & volume": {
+            const length = num("length"), width = num("width");
+            result = positive(length, width) ? `Rectangle area = ${(length * width).toPrecision(6)} m²` : "Enter positive length and width values.";
+            break;
+          }
+          case "Resistor series": {
+            const r1 = num("r1"), r2 = num("r2");
+            result = positive(r1, r2) ? `Ideal series resistance = ${(r1 + r2).toPrecision(6)} Ω` : "Enter positive resistor values.";
+            break;
+          }
+          case "Gear ratio": {
+            const driven = num("driven"), driver = num("driver");
+            result = positive(driven, driver) ? `Driven : driver ratio = ${(driven / driver).toFixed(3)} : 1` : "Enter positive tooth counts.";
+            break;
+          }
+          default: result = "This prototype calculator is not available.";
+        }
+        $("#calc-result").textContent = result;
+      });
+      renderTools();
+      if (new URLSearchParams(location.search).has("q")) $("#tool-search").value = new URLSearchParams(location.search).get("q");
+
+      const lessonItems = [
+        { id: "math", title: "Engineering Mathematics", subject: "First year", desc: "Build fluency in calculus, linear algebra and engineering problem-solving.", topic: "Vectors & matrices", icon: "∑", formula: "A matrix is a rectangular array of values arranged in rows and columns.", example: "For A = [[1, 2], [3, 4]], the determinant is (1×4) − (2×3) = −2.", quiz: "What is the determinant of [[2, 0], [0, 3]]?", answer: "6" },
+        { id: "physics", title: "Engineering Physics", subject: "First year", desc: "Connect mechanics, waves and materials to measurable phenomena.", topic: "Dimensional analysis", icon: "λ", formula: "A physical equation must be dimensionally consistent on both sides.", example: "For distance = speed × time, [L] = [L T⁻¹][T] = [L].", quiz: "What are the dimensions of acceleration?", answer: "[L T⁻²]" },
+        { id: "chemistry", title: "Engineering Chemistry", subject: "First year", desc: "Explore material properties, electrochemistry and applied chemistry.", topic: "Electrochemistry", icon: "◉", formula: "Cell potential depends on the difference between electrode potentials.", example: "Under standard conditions, E°cell = E°cathode − E°anode.", quiz: "Which electrode is the site of reduction?", answer: "The cathode." },
+        { id: "programming", title: "Programming", subject: "First year", desc: "Practice variables, control flow, data structures and computational thinking.", topic: "Algorithm complexity", icon: "{ }", formula: "Big-O describes how resource use scales with input size.", example: "A single pass through n items has O(n) time complexity.", quiz: "How does binary search scale on sorted data?", answer: "O(log n) time." },
+        { id: "graphics", title: "Engineering Graphics", subject: "First year", desc: "Build confidence in orthographic views, sections and technical drawings.", topic: "Orthographic projection", icon: "▱", formula: "Orthographic views project geometry onto mutually perpendicular planes.", example: "A front and top view reveal complementary dimensions of a part.", quiz: "Which view typically shows width and height?", answer: "The front view." },
+        { id: "electrical", title: "Basic Electrical", subject: "First year", desc: "Start with voltage, current, resistance and foundational circuit laws.", topic: "Ohm's law", icon: "ϟ", formula: "V = I R for an ideal ohmic element under stated conditions.", example: "A 2 Ω resistor carrying 3 A has a voltage drop of 6 V.", quiz: "What voltage is across 4 Ω at 2 A?", answer: "8 V." },
+        { id: "mechanical", title: "Basic Mechanical", subject: "First year", desc: "Meet statics, materials, manufacturing and energy fundamentals.", topic: "Stress and strain", icon: "⌁", formula: "Average normal stress σ = F/A; engineering strain ε = ΔL/L₀.", example: "A 1000 N load over 100 mm² gives 10 N/mm² average stress.", quiz: "Is strain dimensionless?", answer: "Yes; it is a ratio of lengths." },
+        { id: "fluids", title: "Fluid Mechanics", subject: "Mechanical", desc: "Relate pressure, speed and elevation in idealized fluid-flow problems.", topic: "Bernoulli's equation", icon: "∿", formula: "p + ½ρv² + ρgz = constant along a streamline for steady, incompressible, inviscid flow.", example: "For horizontal flow with unchanged density, higher speed corresponds to lower static pressure in the ideal model.", quiz: "Name one assumption in the ideal Bernoulli model.", answer: "Steady, incompressible, inviscid flow (among the assumptions)." },
+        { id: "circuits", title: "Circuit Analysis", subject: "Electrical", desc: "Use Kirchhoff's laws to relate current and voltage in networks.", topic: "Kirchhoff's current law", icon: "⎓", formula: "The algebraic sum of currents at a node is zero.", example: "If 2 A enters a node and 0.5 A leaves one branch, 1.5 A leaves through another.", quiz: "What conservation principle underlies KCL?", answer: "Conservation of electric charge." },
+        { id: "structures", title: "Structural Fundamentals", subject: "Civil", desc: "Build an introductory vocabulary for loads, reactions and member behavior.", topic: "Static equilibrium", icon: "⌂", formula: "For a 2D body in equilibrium: ΣFₓ = 0, ΣFᵧ = 0 and ΣM = 0.", example: "A simply supported beam's support reactions balance applied loads and moments.", quiz: "Can a structure be in static equilibrium with a non-zero net moment?", answer: "No." }
+      ];
+      const subjects = ["All", ...new Set(lessonItems.map(item => item.subject))];
+      let activeSubject = "All";
+      function renderLearning() {
+        $("#learning-filters").innerHTML = subjects.map(subject => `<button class="filter-chip" type="button" data-subject="${subject}" aria-pressed="${subject === activeSubject}">${subject}</button>`).join("");
+        const query = $("#learning-search").value.trim().toLowerCase();
+        const filtered = lessonItems.filter(item => (activeSubject === "All" || item.subject === activeSubject) && `${item.title} ${item.subject} ${item.desc} ${item.topic}`.toLowerCase().includes(query));
+        $("#learning-grid").innerHTML = filtered.length ? filtered.map(item => `<article class="content-card"><div class="card-mark" aria-hidden="true">${item.icon}</div><div class="card-meta">${item.subject} · Sample lesson</div><h3>${item.title}</h3><p>${item.desc}</p><button class="inline-link" type="button" data-lesson="${item.id}">Explore ${item.topic} →</button></article>`).join("") : `<div class="content-card"><p>No matching lessons. Try another subject or search term.</p></div>`;
+      }
+      $("#learning-search").addEventListener("input", renderLearning);
+      $("#learning-filters").addEventListener("click", event => {
+        const button = event.target.closest("[data-subject]");
+        if (!button) return;
+        activeSubject = button.dataset.subject;
+        renderLearning();
+      });
+      renderLearning();
+
+      const dialog = $("#content-dialog");
+      function showDialog(title, content) {
+        $("#dialog-title").textContent = title;
+        $("#dialog-body").replaceChildren();
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = content;
+        $("#dialog-body").append(wrapper);
+        if (typeof dialog.showModal === "function") dialog.showModal();
+        else dialog.setAttribute("open", "");
+      }
+      $(".dialog-close").addEventListener("click", () => dialog.close());
+      dialog.addEventListener("click", event => { if (event.target === dialog) dialog.close(); });
+      function openLesson(id) {
+        const item = lessonItems.find(lesson => lesson.id === id);
+        if (!item) return;
+        const body = document.createElement("div");
+        const html = `<div class="card-meta">${item.subject} · Sample educational content</div><h3>Concept</h3><p>${item.desc}</p><h3>Visual study path</h3><div class="lesson-visual" role="img" aria-label="Study path: concept, model, worked example and test"><span>Concept</span><b aria-hidden="true">→</b><span>Model</span><b aria-hidden="true">→</b><span>Example</span><b aria-hidden="true">→</b><span>Test</span></div><h3>Formula / principle</h3><p>${item.formula}</p><h3>Worked example</h3><p>${item.example}</p><details><summary>Practice question</summary><p>${item.quiz}</p><details><summary>Show sample answer</summary><p>${item.answer}</p></details></details><p class="disclaimer">Introductory example only. Check your course materials, assumptions, units and relevant engineering standards.</p>`;
+        body.innerHTML = html;
+        $("#dialog-title").textContent = item.topic;
+        $("#dialog-body").replaceChildren(body);
+        dialog.showModal();
+      }
+
+      const projectItems = [
+        { title: "Smart Plant Monitoring System", level: "Beginner", branch: "Electronics · IoT", desc: "Prototype a sensor-based monitor for soil moisture and ambient conditions.", cost: "Illustrative low-cost prototype; local part prices vary.", problem: "Plant care can be inconsistent when growing conditions change.", objective: "Measure selected environmental conditions and make readings easy to interpret.", components: "Microcontroller, soil-moisture sensor, temperature sensor, power source, wiring, and an enclosure.", architecture: "Sensors → microcontroller → local indicator or optional logging.", software: "Read sensors, validate ranges, display status and log test observations.", testing: "Compare sensor readings across dry/moist soil and repeat measurements.", expected: "A prototype that displays repeatable readings under documented test conditions.", future: "Calibration, weather-resistant enclosure and validated alerting.", docs: "Record sensor selection, calibration, test conditions and limitations; include a system block diagram and concise presentation outline." },
+        { title: "Autonomous Line-Following Robot", level: "Intermediate", branch: "Robotics · Embedded systems", desc: "Explore sensing, feedback and motor control on a small test track.", cost: "Illustrative educational build; depends on chassis and components selected.", problem: "A small mobile robot must follow a marked path despite changes in speed and surface.", objective: "Design a robot that detects a track and corrects its motion.", components: "Chassis, motors, motor driver, reflectance sensors, controller, battery and safe switch.", architecture: "Track sensors → controller → motor driver → differential drive.", software: "Sensor calibration, line-state logic, control loop and data logging.", testing: "Measure completion, deviation and repeatability on a controlled track.", expected: "A documented baseline for completing a defined test track under measured conditions.", future: "Speed tuning, intersections and robust sensor fusion.", docs: "Document the sensor logic, wiring, test track, measured runs and known failure cases; create a system diagram and demo presentation." },
+        { title: "AI-Based Predictive Maintenance", level: "Advanced", branch: "Data · Mechanical", desc: "Investigate how condition data might signal a change in machine behavior.", cost: "Scope and instrumentation dependent; no price estimate is provided.", problem: "Condition changes can be difficult to spot from occasional manual inspection.", objective: "Explore a transparent baseline for classifying representative sensor patterns.", components: "Public or simulated dataset, analysis environment and documented evaluation plan.", architecture: "Data → cleaning → baseline features/model → held-out evaluation → review.", software: "Reproducible analysis with clear assumptions, metrics and limitations.", testing: "Check data leakage, class imbalance, drift and false alarm costs.", expected: "A reproducible offline evaluation with limitations and false-alarm behavior reported.", future: "Prospective validation and expert review before any operational use.", docs: "Document dataset provenance, preprocessing, held-out tests, metrics and limitations; do not present an offline result as operational validation." }
+      ];
+      let activeProjectLevel = "All";
+      function renderProjects() {
+        const levels = ["All", ...new Set(projectItems.map(item => item.level))];
+        $("#project-filters").innerHTML = levels.map(level => `<button class="filter-chip" type="button" data-project-level="${level}" aria-pressed="${level === activeProjectLevel}">${level}</button>`).join("");
+        const items = projectItems.filter(item => activeProjectLevel === "All" || item.level === activeProjectLevel);
+        $("#project-grid").innerHTML = items.map(item => `<article class="content-card project-card"><div class="project-top"><span class="level">${item.level}</span><span class="card-meta">${item.branch}</span></div><h3>${item.title}</h3><p>${item.desc}</p><button class="inline-link" type="button" data-project="${item.title}">View project brief →</button></article>`).join("");
+      }
+      $("#project-filters").addEventListener("click", event => {
+        const button = event.target.closest("[data-project-level]");
+        if (!button) return;
+        activeProjectLevel = button.dataset.projectLevel;
+        renderProjects();
+      });
+      $("#project-grid").addEventListener("click", event => {
+        const button = event.target.closest("[data-project]");
+        if (!button) return;
+        const item = projectItems.find(project => project.title === button.dataset.project);
+        if (!item) return;
+        showDialog(item.title, `<div class="card-meta">${item.level} · ${item.branch} · illustrative brief</div><h3>Problem statement</h3><p>${item.problem}</p><h3>Objective</h3><p>${item.objective}</p><h3>Components &amp; estimated cost</h3><p>${item.components}<br>${item.cost}</p><h3>System architecture</h3><p>${item.architecture}</p><h3>Software &amp; build steps</h3><p>${item.software}</p><h3>Hardware</h3><p>${item.components}</p><h3>Testing plan</h3><p>${item.testing}</p><h3>Expected result</h3><p>${item.expected}</p><h3>Future scope</h3><p>${item.future}</p><h3>Documentation / presentation starter</h3><p>${item.docs}</p><p class="disclaimer">Educational project concept only. Verify design decisions, component ratings, hazards and requirements with a qualified supervisor before construction or use.</p>`);
+      });
+      renderProjects();
+
+      const careerPaths = {
+        "CSE": ["Programming fundamentals", "Data structures & algorithms", "Build a documented software project", "Choose a focus: AI/ML, security, cloud, data or product", "Practice interviews and review role requirements"],
+        "Mechanical": ["Mechanics & materials fundamentals", "CAD, manufacturing and measurement", "Build and test a focused prototype", "Explore robotics, automotive, aerospace, manufacturing or energy", "Document methods, safety and results"],
+        "Electrical": ["Circuit theory & measurement", "Power, machines or control foundations", "Simulate and safely test a small circuit", "Explore power, embedded systems or automation", "Review applicable codes and role requirements"],
+        "ECE / ETE": ["Analog and digital circuit fundamentals", "Signals, communications and embedded systems", "Build a measured hardware/software demo", "Explore telecom, silicon, embedded or robotics", "Present test methods and trade-offs"],
+        "Civil": ["Statics, materials and surveying fundamentals", "Learn CAD/BIM and measurement workflows", "Create a supervised design or field study", "Explore structures, transport, water or construction", "Verify local codes and safety requirements"],
+        "Biotechnology": ["Biology, chemistry and quantitative methods", "Learn lab practice and data handling", "Document a supervised, reproducible study", "Explore bioprocess, devices, research or computation", "Follow lab biosafety and ethics rules"],
+        "Robotics": ["Programming, circuits and mechanics", "Sensors, actuation and control", "Build a small testable autonomous system", "Explore perception, controls or mechatronics", "Test fail-safes and operating limits"],
+        "Aerospace": ["Mechanics, fluids and thermodynamics", "CAD, simulation and instrumentation", "Build a safe, supervised educational model", "Explore structures, propulsion, avionics or flight systems", "Work within professional review and regulatory requirements"]
+      };
+      function renderCareer() {
+        $("#career-roadmap").innerHTML = careerPaths[$("#career-branch").value].map((step, index) => `<div class="path-row"><span class="path-index">${String(index + 1).padStart(2, "0")}</span><div><strong>${step}</strong><br><span>Suggested exploration step · adapt to your goals</span></div></div>`).join("");
+      }
+      $("#career-branch").addEventListener("change", renderCareer);
+      renderCareer();
+
+      const NOTE_KEY = "engineerhub-engineering-note-v1";
+      try { $("#engineering-note").value = localStorage.getItem(NOTE_KEY) || ""; }
+      catch (error) { console.error("Could not load engineering notes:", error); $("#note-status").textContent = "Local notes are unavailable in this browser."; }
+      let noteTimer;
+      $("#engineering-note").addEventListener("input", () => {
+        clearTimeout(noteTimer);
+        $("#note-status").textContent = "Saving…";
+        noteTimer = setTimeout(() => {
+          try { localStorage.setItem(NOTE_KEY, $("#engineering-note").value); $("#note-status").textContent = "Saved on this device."; }
+          catch (error) { console.error("Could not save engineering notes:", error); $("#note-status").textContent = "Could not save. Check browser storage settings."; }
+        }, 250);
+      });
+
+      $("#document-form").addEventListener("submit", event => {
+        event.preventDefault();
+        const title = $("#doc-title").value.trim();
+        if (!title) return;
+        const kind = $("#doc-type").value, branch = $("#doc-branch").value.trim() || "[Add discipline]", goal = $("#doc-goal").value.trim() || "[Write your problem statement and objective.]";
+        const outline = `${kind.toUpperCase()}\n${title}\nDiscipline: ${branch}\n\n1. Abstract\n[Summarize the problem, approach, evidence and main result.]\n\n2. Problem statement & objective\n${goal}\n\n3. Background and sources\n[Summarize relevant work; cite and verify every source.]\n\n4. Methodology / system architecture\n[Describe your design, materials, methods and assumptions.]\n\n5. Testing and results\n[Add measured results, units, conditions and limitations.]\n\n6. Conclusion and future scope\n[State what the evidence supports and what remains open.]\n\nReferences\n[Add properly formatted, verified references.]`;
+        const output = $("#document-output");
+        output.textContent = outline;
+        output.className = "output-text";
+        output.contentEditable = "true";
+        output.setAttribute("aria-label", "Editable document outline");
+      });
+
+      $("#exam-form").addEventListener("submit", event => {
+        event.preventDefault();
+        const days = Number($("#exam-days").value), hours = Number($("#exam-hours").value);
+        if (!Number.isInteger(days) || days < 1 || days > 60 || !Number.isFinite(hours) || hours < 1 || hours > 16) return;
+        const topics = $("#exam-topics").value.split(/\n/).map(topic => topic.trim()).filter(Boolean);
+        if (!topics.length) topics.push("Core concepts", "Worked problems", "Formula review");
+        const items = [];
+        for (let day = 0; day < days; day++) {
+          const topic = topics[day % topics.length];
+          const type = day === days - 1 ? "Light review & rest" : day % 3 === 2 ? "Recall, quiz & revisit errors" : "Concept review & worked problems";
+          items.push(`<li class="path-row"><span class="path-index">D${day + 1}</span><div><strong>${topic}</strong><br><span>${type} · up to ${hours} h</span></div></li>`);
+        }
+        $("#exam-output").innerHTML = `<p class="card-meta">Locally generated template · ${days} days · ${hours} h/day</p><ul class="path-list">${items.join("")}</ul>`;
+        $("#exam-output").className = "";
+      });
+
+      $("#resume-form").addEventListener("submit", event => {
+        event.preventDefault();
+        const name = $("#resume-name").value.trim() || "[Your name]";
+        const discipline = $("#resume-discipline").value.trim() || "[Discipline / year]";
+        const education = $("#resume-education").value.trim() || "[Institution · Degree / Diploma · Expected graduation]";
+        const skills = $("#resume-skills").value.trim() || "[Add verified technical skills]";
+        const project = $("#resume-project").value.trim() || "[Add a project, your contribution and a verifiable outcome]";
+        const internship = $("#resume-internship").value.trim() || "[Add relevant internship experience, if applicable]";
+        const certifications = $("#resume-certifications").value.trim() || "[Add completed, verifiable certifications]";
+        const achievements = $("#resume-achievements").value.trim() || "[Add relevant, verifiable achievements]";
+        const output = `${name}\n${discipline}\n\nPROFILE\nEngineering student focused on [area of interest]. Seeking opportunities to apply coursework through practical, well-documented projects.\n\nEDUCATION\n${education}\n\nTECHNICAL SKILLS\n${skills}\n\nPROJECT EXPERIENCE\n${project}\n\nINTERNSHIPS\n${internship}\n\nCERTIFICATIONS\n${certifications}\n\nACHIEVEMENTS\n${achievements}\n\nAdd only accurate, verifiable details.`;
+        $("#resume-output").textContent = output;
+        $("#resume-output").className = "output-text";
+        $("#print-resume").hidden = false;
+      });
+      $("#print-resume").addEventListener("click", () => window.print());
+
+      const aiExamples = {
+        bernoulli: { title: "Bernoulli's equation · sample explainer", concept: "This idealized relation tracks pressure, kinetic energy per unit volume and gravitational potential energy per unit volume along a streamline.", formula: "p + ½ρv² + ρgz = constant", example: "For horizontal flow (same z) and constant density, the ideal equation predicts that an increase in speed is associated with a decrease in static pressure.", practice: "What assumptions might be inappropriate for a viscous, turbulent real flow?" },
+        circuit: { title: "Simple circuit · sample reasoning", concept: "Start by naming the source, components, reference direction and what output is unexpected. Check connectivity before calculating.", formula: "For an ideal resistor: V = I R; for a node: ΣI = 0.", example: "A 1 kΩ resistor across an ideal 5 V DC source would draw 5 mA in the simple model. Real circuits can include source limits, tolerances and loading.", practice: "Which measured voltage would you check first, and where would you place the meter leads?" },
+        sorting: { title: "Automated sorting · sample project outline", concept: "Break the system into sensing, decision, actuation and verification, with a safe state if a component fails.", formula: "No universal sizing formula: sensor range, payload, actuator and cycle time depend on the actual design.", example: "A small classroom demonstrator might use a low-force actuator and a sensor to classify test objects on a guarded bench rig.", practice: "What test would reveal misclassification before enabling the actuator?" }
+      };
+      function showAI(key) {
+        const sample = aiExamples[key];
+        if (!sample) return;
+        $("#ai-message").textContent = "";
+        $("#ai-output").innerHTML = `<div class="card-meta">Prepared sample · not generated by AI</div><h3>${sample.title}</h3><p><strong>Concept</strong><br>${sample.concept}</p><p><strong>Formula / design principle</strong><br>${sample.formula}</p><p><strong>Example</strong><br>${sample.example}</p><p><strong>Practice</strong><br>${sample.practice}</p><p class="disclaimer">Educational demonstration only. Verify technical decisions with appropriate references and qualified professionals.</p>`;
+      }
+      $$(".ai-sample").forEach(button => button.addEventListener("click", () => showAI(button.dataset.ai)));
+      $("#ai-form").addEventListener("submit", event => {
+        event.preventDefault();
+        const prompt = $("#ai-prompt").value.trim();
+        $("#ai-message").textContent = prompt ? "No live AI is connected. Choose a prepared sample above; your question was not sent or processed." : "Enter a question or choose a prepared sample above.";
+      });
+
+      const initialPage = location.hash.slice(1);
+      navigate(labels[initialPage] ? initialPage : "dashboard");
+    })();
+  </script>
+</body>
+</html>
